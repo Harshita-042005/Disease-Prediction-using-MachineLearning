@@ -1,0 +1,57 @@
+pip install pandas numpy scikit-learn matplotlib seaborn
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Step 1: Load the dataset (Here, we use the Pima Indians Diabetes Dataset)
+url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv"
+column_names = ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age', 'Outcome']
+data = pd.read_csv(url, names=column_names)
+
+# Step 2: Exploratory Data Analysis (Optional, to understand the data)
+print(data.head())  # Display first 5 rows
+print(data.describe())  # Get statistics for the data
+sns.heatmap(data.corr(), annot=True, cmap='coolwarm', fmt='.2f')
+plt.show()
+
+# Step 3: Split the data into features (X) and target (y)
+X = data.drop('Outcome', axis=1)
+y = data['Outcome']
+
+# Step 4: Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Step 5: Data Scaling (Standardization)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Step 6: Train a Random Forest Classifier model
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train_scaled, y_train)
+
+# Step 7: Make predictions on the test data
+y_pred = model.predict(X_test_scaled)
+
+# Step 8: Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy * 100:.2f}%")
+
+# Confusion Matrix
+cm = confusion_matrix(y_test, y_pred)
+print("Confusion Matrix:\n", cm)
+
+# Classification Report
+print("Classification Report:\n", classification_report(y_test, y_pred))
+
+# Visualization of Confusion Matrix
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['No Diabetes', 'Diabetes'], yticklabels=['No Diabetes', 'Diabetes'])
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix')
+plt.show()
